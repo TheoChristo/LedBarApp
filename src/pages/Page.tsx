@@ -28,7 +28,8 @@ const Page: React.FC = () => {
   const [redvalue, setredValue] = useState(0);
   const [greenvalue, setgreenValue] = useState(0);
   const [bluevalue, setblueValue] = useState(0);
-  const [speedvalue, setspeedValue] = useState(0);
+  const [fadevalue, setfadeValue] = useState(0);
+  const [strobevalue, setstrobeValue] = useState(0);
  
   interface espMessage {
     Op:number;
@@ -114,23 +115,29 @@ const Page: React.FC = () => {
     if (sl == 0) 
     {
       setredValue(val as number) 
-      sendSocketMessage(setMessage(10, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 1) 
     {
       setgreenValue(val as number) 
-      sendSocketMessage(setMessage(10, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 2) 
     {
       setblueValue(val as number) 
-      sendSocketMessage(setMessage(10, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 3) 
     {
-      setspeedValue(val as number) 
-      sendSocketMessage(setMessage(9,speedvalue,redvalue, greenvalue, bluevalue))
-      console.log("Speed : "+speedvalue.toString())
+      setfadeValue(val as number) 
+      sendSocketMessage(setMessage(10,fadevalue,redvalue, greenvalue, bluevalue))
+      console.log("Speed : "+fadevalue.toString())
+    }
+    else if (sl == 4) 
+    {
+      setstrobeValue(val as number) 
+      sendSocketMessage(setMessage(11,strobevalue,redvalue, greenvalue, bluevalue))
+      console.log("Speed : "+strobevalue.toString())
     }
 
   }
@@ -165,63 +172,71 @@ const Page: React.FC = () => {
           </IonCol>
         </IonRow>
 
+        <IonRow class="ion-align-items-center">
+          
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="On" subtitle="Lights" imgurl="" command={setMessage(2,1,redvalue, greenvalue, bluevalue)} />
+          </IonCol>
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="Off" subtitle="Lights" imgurl="" command={setMessage(3,0,redvalue, greenvalue, bluevalue)} />
+          </IonCol>
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="On" subtitle="Strobe" imgurl="" command={setMessage(99,1,redvalue, greenvalue, bluevalue)} />
+          </IonCol>
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="Off" subtitle="Strobe" imgurl="" command={setMessage(99, 0, redvalue, greenvalue, bluevalue)} />
+          </IonCol>
 
+        </IonRow>
+{/* 
+        <IonCard onClick = {() => console.log("custom")}>
+            <IonCardHeader >
+              <IonCardTitle>Custom Command</IonCardTitle>
+            </IonCardHeader>
+        </IonCard> */}
 
-          <IonRow class="ion-align-items-center">
-            
-            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-              <ActionCard title="On" subtitle="Lights" imgurl="" command={setMessage(2,1,redvalue, greenvalue, bluevalue)} />
-            </IonCol>
-            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-              <ActionCard title="Off" subtitle="Lights" imgurl="" command={setMessage(3,0,redvalue, greenvalue, bluevalue)} />
-            </IonCol>
-            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-              <ActionCard title="On" subtitle="Strobe" imgurl="" command={setMessage(99,1,redvalue, greenvalue, bluevalue)} />
-            </IonCol>
-            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+        {/* <IonChip>
+          <IonIcon icon={playCircle} color="primary" />
+          <IonLabel>Icon Chip</IonLabel>
+          <IonIcon icon={pauseCircle} />
+        </IonChip> */}
 
-              <ActionCard title="Off" subtitle="Strobe" imgurl="" command={setMessage(99, 0, redvalue, greenvalue, bluevalue)} />
-            </IonCol>
+        <IonList>
+          <IonTitle>Settings</IonTitle>
 
-          </IonRow>
+          <IonItemDivider><IonTitle>Color</IonTitle></IonItemDivider>
+          <IonItem>
+            <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
+            </IonRange>
+          </IonItem>
 
-          {/* <IonChip>
-            <IonIcon icon={playCircle} color="primary" />
-            <IonLabel>Icon Chip</IonLabel>
-            <IonIcon icon={pauseCircle} />
-          </IonChip> */}
+          <IonItem>
+            <IonRange min={0} max={255} color="success" pin={true} onIonChange={e => getSliderValue(e.detail.value, 1) }>
+            </IonRange>
+          </IonItem>
 
-          <IonList>
-            <IonTitle>Settings</IonTitle>
+          <IonItem>
+            <IonRange min={0} max={255} color="primary" pin={true} onIonChange={e => getSliderValue(e.detail.value, 2) }>
+            </IonRange>
+          </IonItem>
 
-            <IonItemDivider><IonTitle>Color</IonTitle></IonItemDivider>
-            <IonItem>
-              <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
-              </IonRange>
-            </IonItem>
+          <IonItemDivider><IonTitle>Fade</IonTitle></IonItemDivider>
 
-            <IonItem>
-              <IonRange min={0} max={255} color="success" pin={true} onIonChange={e => getSliderValue(e.detail.value, 1) }>
-              </IonRange>
-            </IonItem>
+          <IonItem>
+            <IonRange min={1} max={80} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
+            </IonRange>
+          </IonItem>
 
-            <IonItem>
-              <IonRange min={0} max={255} color="primary" pin={true} onIonChange={e => getSliderValue(e.detail.value, 2) }>
-              </IonRange>
-            </IonItem>
+          <IonItemDivider><IonTitle>Strobe</IonTitle></IonItemDivider>
+          <IonItem>
+            <IonRange min={1} max={150} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
+            </IonRange>
+          </IonItem>
 
-            <IonItemDivider><IonTitle>Speed</IonTitle></IonItemDivider>
-
-            <IonItem>
-              <IonRange min={1} max={150} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
-              </IonRange>
-            </IonItem>
-          </IonList>
-
-
+        </IonList>
 
       </IonContent>
-      <IonFooter>
+      {/* <IonFooter>
           <IonToolbar>
             <IonRow>
               
@@ -241,7 +256,7 @@ const Page: React.FC = () => {
               
             </IonRow>
           </IonToolbar>
-        </IonFooter>
+        </IonFooter> */}
     </IonPage>
   );
 };

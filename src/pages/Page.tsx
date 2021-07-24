@@ -1,9 +1,9 @@
-import { IonButtons, IonCol, IonContent, IonHeader, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButtons, IonCol, IonContent, IonHeader, IonItem, IonLabel, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
 import { IonFab, IonFabButton, IonInput, IonFooter} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline} from 'ionicons/icons';
+import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane} from 'ionicons/icons';
 import ReactDOM from 'react-dom';
 import React, { useState } from 'react';
 
@@ -98,22 +98,24 @@ const Page: React.FC = () => {
 
 
       </IonContent>
-      <IonFooter className="ion-no-border">
+      <IonFooter>
           <IonToolbar>
             <IonRow>
-              <IonInput value={text} placeholder="Enter Command" onIonChange={e => setText(e.detail.value!)} clearInput></IonInput>
-              {/* <IonCol> */}
-                {/* <IonFab vertical="top" horizontal="start">
-                  <IonFabButton size = "small" onClick={() => sendMessage()}>
-                    <IonIcon icon={send} />
-                  </IonFabButton>
-                </IonFab> */}
-
-                <IonButton fill = "outline"  shape="round" onClick={() => sendMessage()}>
-                  <IonIcon icon={send} />
-                </IonButton>
               
-              {/* </IonCol> */}
+              <IonCol sizeXs="11">
+                <IonItem>
+                  <IonLabel position="floating">Custom Command</IonLabel>
+                  <IonInput value={text} onIonChange={e => setText(e.detail.value!)} clearInput></IonInput>
+                </IonItem>
+              </IonCol>
+
+              <IonCol sizeXs="1">
+                <IonButton fill = "outline"  shape="round" onClick={() => sendMessage()}>
+                  <IonIcon icon={paperPlane} />
+                </IonButton>
+
+              </IonCol>
+              
             </IonRow>
           </IonToolbar>
         </IonFooter>

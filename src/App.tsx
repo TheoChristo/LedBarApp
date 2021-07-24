@@ -27,11 +27,11 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        <IonSplitPane contentId="main">
+        <IonSplitPane contentId="main" when="xl">
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-              <Redirect to="/page/Inbox" />
+              <Redirect to="/page/Home" />
             </Route>
             <Route path="/page/:name" exact={true}>
               <Page />

@@ -1,5 +1,6 @@
 import { IonButtons, IonCol, IonContent, IonHeader, IonItem, IonLabel, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
 import { IonFab, IonFabButton, IonInput, IonFooter} from '@ionic/react';
+import { IonCard, IonCardContent, IonImg, IonCardTitle, IonCardHeader, IonCardSubtitle, IonGrid} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
@@ -97,6 +98,27 @@ const Page: React.FC = () => {
 
 
 
+          <IonRow class="ion-align-items-center">
+            
+            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+              <ActionCard title="Lights" subtitle="On" imgurl="http://placekitten.com/g/650/650" command="2,0,0" />
+            </IonCol>
+            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+              <ActionCard title="Lights" subtitle="Off" imgurl="http://placekitten.com/g/480/480" command="3,0,0" />
+            </IonCol>
+            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+              <ActionCard title="Strobe" subtitle="On" imgurl="http://placekitten.com/g/320/320" command="99,1,255,255,255" />
+            </IonCol>
+            <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+              <ActionCard title="Strobe" subtitle="Off" imgurl="http://placekitten.com/g/150/150" command="99,0" />
+            </IonCol>
+
+          </IonRow>
+
+
+
+
+
       </IonContent>
       <IonFooter>
           <IonToolbar>
@@ -122,5 +144,34 @@ const Page: React.FC = () => {
     </IonPage>
   );
 };
+
+class ActionCard extends React.Component
+{
+  props = { title: "", subtitle: "", imgurl: "", command:""};
+
+  sendMessage(){
+    if (connected)
+      sock.mySocket.send(this.props.command);
+  }  
+
+  render() {
+    return (
+        <IonCard onClick = {() => this.sendMessage()}>
+          
+          <IonCardContent >
+              <IonImg src={this.props.imgurl}  />
+          </IonCardContent>
+
+          <IonCardHeader >
+            <IonCardTitle>{this.props.title} </IonCardTitle>
+            <IonCardSubtitle>
+              {this.props.subtitle}
+            </IonCardSubtitle>
+          </IonCardHeader>
+        
+        </IonCard>
+    );
+  }
+ }
 
 export default Page;

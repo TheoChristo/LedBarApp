@@ -5,7 +5,7 @@ export class socketProvider
 
     constructor(){
         console.log("Creating Socket...")
-        this.mySocket = new WebSocket("ws://localhost:8765");
+        this.mySocket = new WebSocket("ws://192.168.2.7:8765");
         // this.mySocket = new WebSocket("ws://192.168.2.7:5050", 'protocolOne');
 
         this.mySocket.onopen = function (event) {

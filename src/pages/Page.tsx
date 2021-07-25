@@ -164,11 +164,11 @@ const Page: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton />
+          <IonButtons slot="end">
+            <IonMenuButton ></IonMenuButton>
           </IonButtons>
+          <IonItem id="myConnectionIndicator" slot="start"> {connection_indicator()} </IonItem>
           <IonTitle>{name}</IonTitle>             
-          <div id="myConnectionIndicator" slot="end"> {connection_indicator()} </div>
         </IonToolbar>
       </IonHeader>
 
@@ -176,20 +176,20 @@ const Page: React.FC = () => {
         <IonRow class="ion-align-items-center">
 
           <IonCol sizeXs="4">
-            <IonButton color="success" shape="round" fill="outline" expand="full" onClick={() => connectSocket() } >
-              <IonIcon slot="start" icon={wifiOutline} />Connect 
+            <IonButton color="success" shape="round" fill="outline"  expand="full" onClick={() => connectSocket() } >
+              <IonIcon size="large" icon={wifiOutline} /> 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="4">
             <IonButton color="danger" shape="round" fill="outline" expand="full" onClick={() => diconnect_socket() } >
-              <IonIcon slot="start" icon={cloudDownloadOutline} />Disconnect 
+              <IonIcon  size="large" icon={cloudDownloadOutline} /> 
             </IonButton>
 
           </IonCol>
             <IonCol sizeXs="4">
-            <IonButton shape="round" fill="outline" expand="full" onClick={() => forceOTA() } >
-              <IonIcon slot="start" icon={cloudUploadOutline} />OTA 
+            <IonButton shape="round"  expand="full" fill="outline" onClick={() => forceOTA() } >
+              <IonIcon size="large" icon={cloudUploadOutline} /> 
             </IonButton>
             </IonCol>
         </IonRow>
@@ -201,11 +201,16 @@ const Page: React.FC = () => {
         <IonList> 
           
 
-          <IonItem><IonTitle>Brightness</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
+          <IonItem><IonTitle>Light</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
           
           <IonItem>
             <IonIcon slot="start" icon={bulbOutline} color="medium" size="large" /> 
             <IonRange min={0} max={255} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 5) }>
+            </IonRange>
+          </IonItem>
+          <IonItem>
+            <IonIcon slot="start" icon={partlySunnyOutline} color="medium" size="large" /> 
+            <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
             </IonRange>
           </IonItem>
 
@@ -221,7 +226,7 @@ const Page: React.FC = () => {
 
 
           <IonItemDivider></IonItemDivider>
-          <IonTitle>Color</IonTitle>
+          <IonItem><IonTitle>Color</IonTitle></IonItem>
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="danger" size="large" /> 
             <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
@@ -240,14 +245,8 @@ const Page: React.FC = () => {
             </IonRange>
           </IonItem>
 
-          <IonItemDivider></IonItemDivider>
-          <IonTitle>Fade</IonTitle>
 
-          <IonItem>
-            <IonIcon slot="start" icon={partlySunnyOutline} color="medium" size="large" /> 
-            <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
-            </IonRange>
-          </IonItem>
+
 
 
         </IonList>
@@ -256,7 +255,7 @@ const Page: React.FC = () => {
 
         <IonRow class="ion-align-items-center">
 
-          <IonCol sizeXs="2" offset="2">
+          <IonCol sizeXs="2" offset="1">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(21,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={glassesOutline} />Mirror 
             </IonButton>
@@ -270,13 +269,19 @@ const Page: React.FC = () => {
 
           <IonCol sizeXs="2">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(23,0,redvalue, greenvalue, bluevalue)) } >
-              <IonIcon slot="start" icon={browsersOutline} />Prog 1 
+              <IonIcon slot="start" icon={browsersOutline} /> 1 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(24,0,redvalue, greenvalue, bluevalue)) } >
-              <IonIcon slot="start" icon={browsersSharp} />Prog 2 
+              <IonIcon slot="start" icon={browsersSharp} /> 2 
+            </IonButton>
+          </IonCol>
+
+          <IonCol sizeXs="2">
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(25,0,redvalue, greenvalue, bluevalue)) } >
+              <IonIcon slot="start" icon={browsersSharp} /> 3 
             </IonButton>
           </IonCol>
 

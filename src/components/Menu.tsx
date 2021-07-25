@@ -60,7 +60,7 @@ const Menu: React.FC = () => {
   }
 
   return (
-    <IonMenu contentId="main" type="push" class="mymenu">
+    <IonMenu contentId="main" side = "end"type="push" class="mymenu">
       <IonContent>
         <IonList id="inbox-list">
           {/* <IonListHeader>Menu</IonListHeader> */}

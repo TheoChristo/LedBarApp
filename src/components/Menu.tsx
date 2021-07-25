@@ -8,10 +8,11 @@ import {
   IonMenu,
   IonMenuToggle,
   IonNote,
+  IonToggle,
 } from '@ionic/react';
 
 import { useLocation } from 'react-router-dom';
-import { archiveOutline, archiveSharp, bookmarkOutline, heartOutline, heartSharp, mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
+import { archiveOutline, archiveSharp, bookmarkOutline, heartOutline, heartSharp, mailOutline, mailSharp, moonOutline, paperPlaneOutline, paperPlaneSharp, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
 import './Menu.css';
 
 interface AppPage {
@@ -39,6 +40,14 @@ const appPages: AppPage[] = [
 const Menu: React.FC = () => {
   const location = useLocation();
 
+  function toggleTheme(event:CustomEvent)
+  {
+    if (event.detail.checked)
+      document.body.setAttribute('color-theme', 'dark')
+    else
+      document.body.setAttribute('color-theme', 'light')
+  }
+
   return (
     <IonMenu contentId="main" type="overlay">
       <IonContent>
@@ -54,7 +63,12 @@ const Menu: React.FC = () => {
                 </IonItem>
               </IonMenuToggle>
             );
-          })}
+          })}moon
+          <IonItem>
+            <IonIcon slot="start" icon={moonOutline} color="medium"  /> 
+            <IonLabel>Dark</IonLabel><IonToggle color="medium"  slot="end" onIonChange={(e)=>toggleTheme(e)}/> 
+          </IonItem>
+
         </IonList>
       </IonContent>
     </IonMenu>

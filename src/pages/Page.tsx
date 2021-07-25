@@ -32,6 +32,7 @@ const Page: React.FC = () => {
   const [bluevalue, setblueValue] = useState(0);
   const [fadevalue, setfadeValue] = useState(0);
   const [strobevalue, setstrobeValue] = useState(0);
+  const [brightnessvalue, setbrightnessValue] = useState(0);
  
   interface espMessage {
     Op:number;
@@ -114,7 +115,10 @@ const Page: React.FC = () => {
   function forceOTA()
   {
     if (connected)
+    {
       sendSocketMessage(setMessage(100,0,0,0,0))
+      present('OTA Enabled! ', 2000)
+    }
     else if (!connected)
       present('No connection available!', 2000)
   }
@@ -153,13 +157,19 @@ const Page: React.FC = () => {
     {
       setfadeValue(val as number) 
       sendSocketMessage(setMessage(10,fadevalue,redvalue, greenvalue, bluevalue))
-      console.log("Speed : "+fadevalue.toString())
+      console.log("Fade : "+fadevalue.toString())
     }
     else if (sl == 4) 
     {
       setstrobeValue(val as number) 
       sendSocketMessage(setMessage(11,strobevalue,redvalue, greenvalue, bluevalue))
       console.log("Speed : "+strobevalue.toString())
+    }
+    else if (sl == 5) 
+    {
+      setbrightnessValue(val as number) 
+      sendSocketMessage(setMessage(12,brightnessvalue,redvalue, greenvalue, bluevalue))
+      console.log("Brightness : "+brightnessvalue.toString())
     }
 
   }
@@ -187,62 +197,44 @@ const Page: React.FC = () => {
 
       <IonContent>
         <IonRow class="ion-align-items-center">
-          <IonCol sizeXs="12">
 
-          
-            <IonButton color="success" shape="round" fill="outline" onClick={() => connectSocket() } >
+          <IonCol sizeXs="4">
+            <IonButton color="success" shape="round" fill="outline" expand="full" onClick={() => connectSocket() } >
               <IonIcon slot="start" icon={wifiOutline} />Connect 
             </IonButton>
+          </IonCol>
 
-            <IonButton color="danger" shape="round" fill="outline" onClick={() => diconnect_socket() } >
+          <IonCol sizeXs="4">
+            <IonButton color="danger" shape="round" fill="outline" expand="full" onClick={() => diconnect_socket() } >
               <IonIcon slot="start" icon={cloudDownloadOutline} />Disconnect 
             </IonButton>
 
-            <IonButton shape="round" fill="outline" onClick={() => forceOTA() } >
+          </IonCol>
+            <IonCol sizeXs="4">
+            <IonButton shape="round" fill="outline" expand="full" onClick={() => forceOTA() } >
               <IonIcon slot="start" icon={cloudUploadOutline} />OTA 
             </IonButton>
-          </IonCol>
+            </IonCol>
         </IonRow>
 
         <IonRow>
-          
+        <IonItemDivider></IonItemDivider>
         </IonRow>
 
+        <IonList> 
+          <IonItem><IonTitle>Light</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
 
-        <IonItem><IonTitle>Light</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
-        <IonItem><IonTitle>Strobe</IonTitle><IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> </IonItem>
-        {/* <IonRow class="ion-align-items-center">
-          {/* <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2"> */}
-            {/* <ActionCard title="On" subtitle="Lights" imgurl="" command={lightsToggle(true)} />
-          </IonCol>
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="Off" subtitle="Lights" imgurl="" command={lightsToggle(false)} />
-          </IonCol> */}
-          {/* <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="On" subtitle="Strobe" imgurl="" command={strobeToggle(true)} />
-          </IonCol>
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="Off" subtitle="Strobe" imgurl="" command={strobeToggle(false)} />
-          </IonCol> */}
+          <IonItem><IonTitle>Strobe</IonTitle><IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> </IonItem>
+          
+          <IonItemDivider></IonItemDivider>
+          <IonTitle>Brightness</IonTitle>
+          <IonItem>
+            <IonRange min={0} max={255} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 5) }>
+            </IonRange>
+          </IonItem>
 
-        {/* </IonRow> */}
-{/* 
-        <IonCard onClick = {() => console.log("custom")}>
-            <IonCardHeader >
-              <IonCardTitle>Custom Command</IonCardTitle>
-            </IonCardHeader>
-        </IonCard> */}
-
-        {/* <IonChip>
-          <IonIcon icon={playCircle} color="primary" />
-          <IonLabel>Icon Chip</IonLabel>
-          <IonIcon icon={pauseCircle} />
-        </IonChip> */}
-
-        <IonList>
-          {/* <IonTitle>Settings</IonTitle> */}
-
-          <IonItemDivider><IonTitle>Color</IonTitle></IonItemDivider>
+          <IonItemDivider></IonItemDivider>
+          <IonTitle>Color</IonTitle>
           <IonItem>
             <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
             </IonRange>
@@ -258,14 +250,16 @@ const Page: React.FC = () => {
             </IonRange>
           </IonItem>
 
-          <IonItemDivider><IonTitle>Fade</IonTitle></IonItemDivider>
+          <IonItemDivider></IonItemDivider>
+          <IonTitle>Fade</IonTitle>
 
           <IonItem>
             <IonRange min={1} max={80} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
             </IonRange>
           </IonItem>
 
-          <IonItemDivider><IonTitle>Strobe</IonTitle></IonItemDivider>
+          <IonItemDivider></IonItemDivider>
+          <IonTitle>Strobe</IonTitle>
           <IonItem>
             <IonRange min={1} max={100} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
             </IonRange>
@@ -274,64 +268,8 @@ const Page: React.FC = () => {
         </IonList>
 
       </IonContent>
-      {/* <IonFooter>
-          <IonToolbar>
-            <IonRow>
-              
-              <IonCol sizeXs="10">
-                <IonItem>
-                  <IonLabel position="floating">Custom Command</IonLabel>
-                  <IonInput value={text} onIonChange={e => setText(e.detail.value!)} clearInput></IonInput>
-                </IonItem>
-              </IonCol>
-
-              <IonCol sizeXs="1">
-                <IonButton fill = "outline"  shape="round" onClick={() => sendCustomMessage()}>
-                  <IonIcon icon={paperPlane} />
-                </IonButton>
-
-              </IonCol>
-              
-            </IonRow>
-          </IonToolbar>
-        </IonFooter> */}
     </IonPage>
   );
 };
-
-class ActionCard extends React.Component
-{
-  // constructor(props)
-  // {
-  //   super(props)
-  // }
-  props = { title: "", subtitle: "", imgurl: "", command:""};
-  
-  sendMessage(){
-    if (connected)
-    {
-      sock.mySocket.send(this.props.command);
-    }
-  }  
-  
-  render() {
-    return (
-        <IonCard onClick = {() => this.sendMessage()}>
-          {/* <IonCardContent >
-              <IonImg src={this.props.imgurl}  />
-          </IonCardContent> */}
-
-          <IonCardHeader >
-            <IonCardTitle>{this.props.title} </IonCardTitle>
-            <IonCardSubtitle>
-              {this.props.subtitle}
-            </IonCardSubtitle>
-          </IonCardHeader>
-
-        
-        </IonCard>
-    );
-  }
- }
 
 export default Page;

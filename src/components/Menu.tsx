@@ -1,4 +1,5 @@
 import {
+  IonButton,
   IonContent,
   IonIcon,
   IonItem,
@@ -12,8 +13,9 @@ import {
 } from '@ionic/react';
 
 import { useLocation } from 'react-router-dom';
-import { archiveOutline, archiveSharp, bookmarkOutline, heartOutline, heartSharp, mailOutline, mailSharp, moonOutline, paperPlaneOutline, paperPlaneSharp, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
+import { archiveOutline, archiveSharp, bookmarkOutline, heartOutline, heartSharp, home, homeOutline, mailOutline, mailSharp, moon, moonOutline, paperPlaneOutline, paperPlaneSharp, settings, settingsOutline, sunny, sunnyOutline, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
 import './Menu.css';
+import ReactDOM from 'react-dom';
 
 interface AppPage {
   url: string;
@@ -26,48 +28,53 @@ const appPages: AppPage[] = [
   {
     title: 'Home',
     url: '/page/Home',
-    iosIcon: mailOutline,
-    mdIcon: mailSharp
+    iosIcon: homeOutline,
+    mdIcon: homeOutline
   },
   {
-    title: 'Favorites',
-    url: '/page/Favorites',
-    iosIcon: heartOutline,
-    mdIcon: heartSharp
+    title: 'Settings',
+    url: '/page/Settings',
+    iosIcon: settingsOutline,
+    mdIcon: settingsOutline
   }
 ];
-
+let dark=false;
 const Menu: React.FC = () => {
   const location = useLocation();
-
-  function toggleTheme(event:CustomEvent)
+  var dark_indicator = () => { 
+    // slot="start" fill="clear" expand="full" size = "large"
+    if (dark) return <IonIcon size="large"  slot="start" icon={sunny} color="medium"  />
+    else return <IonIcon size="large"  slot="start" icon={moonOutline} color="medium"  />
+  }
+  function toggleTheme()
   {
-    if (event.detail.checked)
+    // event.detail.checked
+    dark = !dark
+    if (dark)
       document.body.setAttribute('color-theme', 'dark')
     else
-      document.body.setAttribute('color-theme', 'light')
+      document.body.setAttribute('color-theme', 'light')  
+    
+      ReactDOM.render(dark_indicator(), document.getElementById('myItem'));
+    
   }
 
   return (
-    <IonMenu contentId="main" type="overlay">
+    <IonMenu contentId="main" type="push" class="mymenu">
       <IonContent>
         <IonList id="inbox-list">
-          <IonListHeader>Inbox</IonListHeader>
-          <IonNote>hi@ionicframework.com</IonNote>
+          {/* <IonListHeader>Menu</IonListHeader> */}
           {appPages.map((appPage, index) => {
             return (
               <IonMenuToggle key={index} autoHide={false}>
                 <IonItem className={location.pathname === appPage.url ? 'selected' : ''} routerLink={appPage.url} routerDirection="none" lines="none" detail={false}>
-                  <IonIcon slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} />
-                  <IonLabel>{appPage.title}</IonLabel>
+                  <IonIcon size="large" slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} />
+                  
                 </IonItem>
               </IonMenuToggle>
             );
-          })}moon
-          <IonItem>
-            <IonIcon slot="start" icon={moonOutline} color="medium"  /> 
-            <IonLabel>Dark</IonLabel><IonToggle color="medium"  slot="end" onIonChange={(e)=>toggleTheme(e)}/> 
-          </IonItem>
+          })}
+          <IonItem id="myItem" slot="start" button={true} onClick={()=>toggleTheme()}> {dark_indicator()}</IonItem>
 
         </IonList>
       </IonContent>

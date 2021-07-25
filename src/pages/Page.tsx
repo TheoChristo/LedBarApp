@@ -1,10 +1,10 @@
-import { IonButtons, IonChip, IonCol, IonContent, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButtons, IonChip, IonCol, IonContent, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToggle, IonToolbar } from '@ionic/react';
 import { IonFab, IonFabButton, IonInput, IonFooter} from '@ionic/react';
 import { IonCard, IonCardContent, IonImg, IonCardTitle, IonCardHeader, IonCardSubtitle, IonGrid, IonRange} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline} from 'ionicons/icons';
+import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline, power} from 'ionicons/icons';
 import ReactDOM from 'react-dom';
 import React, { useState } from 'react';
 
@@ -14,6 +14,8 @@ import { RangeValue } from '@ionic/core';
 
 var sock : socketProvider;
 let connected = false;
+let lightStatus = false;
+let strobeStatus = false;
 
 const Page: React.FC = () => {
   
@@ -50,6 +52,26 @@ const Page: React.FC = () => {
     if (connected) return <IonIcon color="success" size="large" slot="end" icon={cloudDone} />
     else return <IonIcon color="danger" size="large" slot="end" icon={cloudOffline} />
   }
+
+  var lightStatus_indicator = () => { 
+    if (lightStatus) 
+    {
+      return (
+        <IonButton color="danger" shape="round" fill="outline" onClick={() => lightsToggle(true) } >
+          <IonIcon slot="start" icon={power} /> 
+        </IonButton>
+      );
+    }
+    else
+    {
+      return (
+        <IonButton color="success" shape="round" fill="outline" onClick={() => lightsToggle(false) } >
+          <IonIcon slot="start" icon={power} /> 
+        </IonButton>
+      );
+    } 
+  }
+
 
   function connectSocket()
   {
@@ -91,8 +113,8 @@ const Page: React.FC = () => {
 
   function forceOTA()
   {
-    if (text && connected)
-      sock.mySocket.send("100,0,0");
+    if (connected)
+      sendSocketMessage(setMessage(100,0,0,0,0))
     else if (!connected)
       present('No connection available!', 2000)
   }
@@ -142,6 +164,14 @@ const Page: React.FC = () => {
 
   }
 
+  function lightsToggle(target:boolean) {
+    console.log("LightToggle: "+target)
+    sendSocketMessage (setMessage(target ? 2 : 3,1,redvalue, greenvalue, bluevalue))
+  }
+  function strobeToggle(target:boolean) {
+    console.log("StrobeToggle: "+target)
+    sendSocketMessage(setMessage(99,target ? 1 : 0,redvalue, greenvalue, bluevalue))
+  }
 
   return (
     <IonPage>
@@ -158,6 +188,8 @@ const Page: React.FC = () => {
       <IonContent>
         <IonRow class="ion-align-items-center">
           <IonCol sizeXs="12">
+
+          
             <IonButton color="success" shape="round" fill="outline" onClick={() => connectSocket() } >
               <IonIcon slot="start" icon={wifiOutline} />Connect 
             </IonButton>
@@ -172,22 +204,28 @@ const Page: React.FC = () => {
           </IonCol>
         </IonRow>
 
-        <IonRow class="ion-align-items-center">
+        <IonRow>
           
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="On" subtitle="Lights" imgurl="" command={setMessage(2,1,redvalue, greenvalue, bluevalue)} />
-          </IonCol>
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="Off" subtitle="Lights" imgurl="" command={setMessage(3,0,redvalue, greenvalue, bluevalue)} />
-          </IonCol>
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="On" subtitle="Strobe" imgurl="" command={setMessage(99,1,redvalue, greenvalue, bluevalue)} />
-          </IonCol>
-          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
-            <ActionCard title="Off" subtitle="Strobe" imgurl="" command={setMessage(99, 0, redvalue, greenvalue, bluevalue)} />
-          </IonCol>
-
         </IonRow>
+
+
+        <IonItem><IonTitle>Light</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
+        <IonItem><IonTitle>Strobe</IonTitle><IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> </IonItem>
+        {/* <IonRow class="ion-align-items-center">
+          {/* <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2"> */}
+            {/* <ActionCard title="On" subtitle="Lights" imgurl="" command={lightsToggle(true)} />
+          </IonCol>
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="Off" subtitle="Lights" imgurl="" command={lightsToggle(false)} />
+          </IonCol> */}
+          {/* <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="On" subtitle="Strobe" imgurl="" command={strobeToggle(true)} />
+          </IonCol>
+          <IonCol size-xs="6" sizeSm="4" sizeMd="3" sizeLg="3" sizeXl="2">
+            <ActionCard title="Off" subtitle="Strobe" imgurl="" command={strobeToggle(false)} />
+          </IonCol> */}
+
+        {/* </IonRow> */}
 {/* 
         <IonCard onClick = {() => console.log("custom")}>
             <IonCardHeader >
@@ -202,7 +240,7 @@ const Page: React.FC = () => {
         </IonChip> */}
 
         <IonList>
-          <IonTitle>Settings</IonTitle>
+          {/* <IonTitle>Settings</IonTitle> */}
 
           <IonItemDivider><IonTitle>Color</IonTitle></IonItemDivider>
           <IonItem>
@@ -229,7 +267,7 @@ const Page: React.FC = () => {
 
           <IonItemDivider><IonTitle>Strobe</IonTitle></IonItemDivider>
           <IonItem>
-            <IonRange min={1} max={150} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
+            <IonRange min={1} max={100} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
             </IonRange>
           </IonItem>
 

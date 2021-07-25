@@ -38,11 +38,6 @@ const Page: React.FC = () => {
     Arg4:number;
   };
 
-  function setMessage(Op:number, Arg1:number, Arg2:number, Arg3:number, Arg4:number)
-  {
-    var myMessage : espMessage= {Op: Op, Arg1:Arg1, Arg2:Arg2, Arg3:Arg3, Arg4:Arg4}
-    return JSON.stringify(myMessage)
-  }
 
 
   var connection_indicator = () => { 
@@ -55,14 +50,11 @@ const Page: React.FC = () => {
     sock = new socketProvider();
 
     sock.mySocket.onopen = function (event) {
-      console.log("Socket connection established.")
       present('Socket connection established.', 2000)
-
       connected = true;
       ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
     };
     sock.mySocket.onerror = function(event) {
-      console.log("Socket Error");
       present('Socket Error.', 2000)
       connected = false; 
       ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
@@ -73,26 +65,12 @@ const Page: React.FC = () => {
       present('Recieved message '+msg, 2000)
     };
   }
-  
-  function sendCustomMessage(){
-    if (text && connected)
-      sock.mySocket.send(String(text));
-    else if (!connected)
-      present('No connection available!', 2000)
-  }  
-
-  function sendSocketMessage(msg:string){
-    if (connected)
-    {
-      sock.mySocket.send(msg);
-    }
-  }
 
   function forceOTA()
   {
     if (connected)
     {
-      sendSocketMessage(setMessage(100,0,0,0,0))
+      sendSocketMessage(formatMessage(100,0,0,0,0))
       present('OTA Enabled! ', 2000)
     }
     else if (!connected)
@@ -112,39 +90,52 @@ const Page: React.FC = () => {
     
   }
 
+  function sendSocketMessage(msg:string){
+    if (connected)
+    {
+      sock.mySocket.send(msg);
+    }
+  }
+
+  function formatMessage(Op:number, Arg1:number, Arg2:number, Arg3:number, Arg4:number)
+  {
+    var myMessage : espMessage= {Op: Op, Arg1:Arg1, Arg2:Arg2, Arg3:Arg3, Arg4:Arg4}
+    return JSON.stringify(myMessage)
+  }
+
   function getSliderValue(val : RangeValue, sl:number)
   {
     if (sl == 0) 
     {
       setredValue(val as number) 
-      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 1) 
     {
       setgreenValue(val as number) 
-      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 2) 
     {
       setblueValue(val as number) 
-      sendSocketMessage(setMessage(9, 0,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(9, 0,redvalue, greenvalue, bluevalue))
     }
     else if (sl == 3) 
     {
       setfadeValue(val as number) 
-      sendSocketMessage(setMessage(10,fadevalue,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(10,fadevalue,redvalue, greenvalue, bluevalue))
       console.log("Fade : "+fadevalue.toString())
     }
     else if (sl == 4) 
     {
       setstrobeValue(val as number) 
-      sendSocketMessage(setMessage(11,strobevalue,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(11,strobevalue,redvalue, greenvalue, bluevalue))
       console.log("Speed : "+strobevalue.toString())
     }
     else if (sl == 5) 
     {
       setbrightnessValue(val as number) 
-      sendSocketMessage(setMessage(12,brightnessvalue,redvalue, greenvalue, bluevalue))
+      sendSocketMessage(formatMessage(12,brightnessvalue,redvalue, greenvalue, bluevalue))
       console.log("Brightness : "+brightnessvalue.toString())
     }
 
@@ -152,11 +143,11 @@ const Page: React.FC = () => {
 
   function lightsToggle(target:boolean) {
     console.log("LightToggle: "+target)
-    sendSocketMessage (setMessage(target ? 2 : 3,1,redvalue, greenvalue, bluevalue))
+    sendSocketMessage (formatMessage(target ? 2 : 3,1,redvalue, greenvalue, bluevalue))
   }
   function strobeToggle(target:boolean) {
     console.log("StrobeToggle: "+target)
-    sendSocketMessage(setMessage(99,target ? 1 : 0,redvalue, greenvalue, bluevalue))
+    sendSocketMessage(formatMessage(99,target ? 1 : 0,redvalue, greenvalue, bluevalue))
   }
 
 
@@ -200,33 +191,40 @@ const Page: React.FC = () => {
 
         <IonList> 
           
-
-          <IonItem><IonTitle>Light</IonTitle><IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> </IonItem>
+          <IonItem>
+            <IonTitle>Light</IonTitle>
+            <IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> 
+          </IonItem>
           
           <IonItem>
             <IonIcon slot="start" icon={bulbOutline} color="medium" size="large" /> 
             <IonRange min={0} max={255} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 5) }>
             </IonRange>
           </IonItem>
+
           <IonItem>
             <IonIcon slot="start" icon={partlySunnyOutline} color="medium" size="large" /> 
             <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
             </IonRange>
           </IonItem>
 
-
           <IonItemDivider></IonItemDivider>
-          <IonItem><IonTitle>Strobe</IonTitle><IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> </IonItem>
+
+          <IonItem>
+            <IonTitle>Strobe</IonTitle>
+            <IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> 
+          </IonItem>
+
           <IonItem>
             <IonIcon slot="start" icon={filterOutline} color="medium" size="large" /> 
             <IonRange min={80} max={255} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
             </IonRange>
           </IonItem>
 
-
-
           <IonItemDivider></IonItemDivider>
+
           <IonItem><IonTitle>Color</IonTitle></IonItem>
+          
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="danger" size="large" /> 
             <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
@@ -256,31 +254,31 @@ const Page: React.FC = () => {
         <IonRow class="ion-align-items-center">
 
           <IonCol sizeXs="2" offset="1">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(21,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(21,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={glassesOutline} />Mirror 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(22,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(22,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={analyticsOutline} />Series 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(23,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(23,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersOutline} /> 1 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(24,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(24,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 2 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(setMessage(25,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(25,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 3 
             </IonButton>
           </IonCol>

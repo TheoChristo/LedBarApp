@@ -38,7 +38,7 @@ const appPages: AppPage[] = [
     mdIcon: settingsOutline
   }
 ];
-let dark=false;
+let dark=true;
 const Menu: React.FC = () => {
   const location = useLocation();
   var dark_indicator = () => { 

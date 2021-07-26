@@ -1,4 +1,4 @@
-import { IonButtons, IonChip, IonCol, IonContent, IonFab, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToggle, IonToolbar, useIonAlert } from '@ionic/react';
+import { IonButtons, IonChip, IonCol, IonContent, IonFab, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonViewDidEnter } from '@ionic/react';
 import { IonRange} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
@@ -15,7 +15,11 @@ var sock : socketProvider;
 let connected = false;
 
 const Page: React.FC = () => {
-  
+  useIonViewDidEnter(() => {
+    console.log("Did Enter")
+    if (!connected)
+      connectSocket()
+  });
   // toast
   const { name } = useParams<{ name: string; }>();
   const [present] = useIonToast();

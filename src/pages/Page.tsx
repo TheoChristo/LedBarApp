@@ -1,4 +1,4 @@
-import { IonButtons, IonChip, IonCol, IonContent, IonFab, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToggle, IonToolbar } from '@ionic/react';
+import { IonButtons, IonChip, IonCol, IonContent, IonFab, IonHeader, IonItem, IonItemDivider, IonLabel, IonList, IonMenuButton, IonPage, IonRow, IonTitle, IonToggle, IonToolbar, useIonAlert } from '@ionic/react';
 import { IonRange} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
@@ -19,6 +19,8 @@ const Page: React.FC = () => {
   // toast
   const { name } = useParams<{ name: string; }>();
   const [present] = useIonToast();
+  //alert
+  const [presentAlert] = useIonAlert();
 
   const [text, setText] = useState<string>();
   
@@ -38,32 +40,50 @@ const Page: React.FC = () => {
     Arg4:number;
   };
 
-
+  function presentNoConnectionAlert(msg:string)
+  {
+    presentAlert({
+    // cssClass: 'my-css',
+    header: 'Alert',
+    message: msg,
+    buttons: [
+      // 'Cancel',
+      { text: 'Ok', handler: (d) => console.log('ok pressed') },
+    ],
+    // onDidDismiss: (e) => console.log('did dismiss'),
+  })}
 
   var connection_indicator = () => { 
-    if (connected) return <IonIcon color="success" size="large" slot="end" icon={cloudDone} />
-    else return <IonIcon color="danger" size="large" slot="end" icon={cloudOffline} />
+    if (connected) return <IonIcon color="success" size="large" slot="end" icon={cloudDone} onClick={() => diconnect_socket()}/>
+    else return <IonIcon color="danger" size="large" slot="end" icon={cloudOffline} onClick={() => connectSocket()}/>
   }
 
   function connectSocket()
   {
-    sock = new socketProvider();
+    try{
 
-    sock.mySocket.onopen = function (event) {
-      present('Socket connection established.', 2000)
-      connected = true;
-      ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
-    };
-    sock.mySocket.onerror = function(event) {
-      present('Socket Error.', 2000)
-      connected = false; 
-      ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
-    };
+      sock = new socketProvider();
 
-    sock.mySocket.onmessage= function(msg) {
-      console.log("Recieved message");
-      present('Recieved message '+msg, 2000)
-    };
+      sock.mySocket.onopen = function (event) {
+        present('Socket connection established.', 2000)
+        connected = true;
+        ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
+      };
+      sock.mySocket.onerror = function(event) {
+        presentNoConnectionAlert("Socket Error")
+        connected = false; 
+        ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
+      };
+
+      sock.mySocket.onmessage= function(msg) {
+        console.log("Recieved message");
+        present('Recieved message '+msg, 2000)
+      };
+    }catch(err)
+    {
+      presentNoConnectionAlert("Socket Error")
+      console.log(err)
+    }
   }
 
   function forceOTA()
@@ -74,7 +94,7 @@ const Page: React.FC = () => {
       present('OTA Enabled! ', 2000)
     }
     else if (!connected)
-      present('No connection available!', 2000)
+      presentNoConnectionAlert("No connection available!")
   }
 
   function diconnect_socket(){
@@ -86,14 +106,14 @@ const Page: React.FC = () => {
       present('Disconnected.', 2000)
     }
     else 
-      present('No connection available!', 2000)
+      presentNoConnectionAlert("No connection available!")
     
   }
 
   function sendSocketMessage(msg:string){
     if (connected)
     {
-      sock.mySocket.send(msg);
+        sock.mySocket.send(msg);
     }
   }
 
@@ -155,35 +175,20 @@ const Page: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonItem id="myConnectionIndicator" slot="start"> {connection_indicator()} </IonItem>
+          
+          <IonTitle>{name}</IonTitle>
+
+          <IonIcon class="OtaButton" size="large" slot="end"  color="primary" icon={cloudUploadOutline} onClick={() => forceOTA() } /> 
+            
           <IonButtons slot="end">
             <IonMenuButton ></IonMenuButton>
           </IonButtons>
-          <IonItem id="myConnectionIndicator" slot="start"> {connection_indicator()} </IonItem>
-          <IonTitle>{name}</IonTitle>             
+
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
-        <IonRow class="ion-align-items-center">
-
-          <IonCol sizeXs="4">
-            <IonButton color="success" shape="round" fill="outline"  expand="full" onClick={() => connectSocket() } >
-              <IonIcon size="large" icon={wifiOutline} /> 
-            </IonButton>
-          </IonCol>
-
-          <IonCol sizeXs="4">
-            <IonButton color="danger" shape="round" fill="outline" expand="full" onClick={() => diconnect_socket() } >
-              <IonIcon  size="large" icon={cloudDownloadOutline} /> 
-            </IonButton>
-
-          </IonCol>
-            <IonCol sizeXs="4">
-            <IonButton shape="round"  expand="full" fill="outline" onClick={() => forceOTA() } >
-              <IonIcon size="large" icon={cloudUploadOutline} /> 
-            </IonButton>
-            </IonCol>
-        </IonRow>
 
         <IonRow>
         <IonItemDivider></IonItemDivider>
@@ -227,25 +232,18 @@ const Page: React.FC = () => {
           
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="danger" size="large" /> 
-            <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }>
-            </IonRange>
+            <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }></IonRange>
           </IonItem>
 
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="success" size="large" /> 
-            <IonRange min={0} max={255} color="success" pin={true} ticks={true} onIonChange={e => getSliderValue(e.detail.value, 1) }>
-            </IonRange>
+            <IonRange min={0} max={255} color="success" pin={true} ticks={true} onIonChange={e => getSliderValue(e.detail.value, 1) }></IonRange>
           </IonItem>
 
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="primary" size="large" /> 
-            <IonRange min={0} max={255} color="primary" pin={true} ticks={true} onIonChange={e => getSliderValue(e.detail.value, 2) }>
-            </IonRange>
+            <IonRange min={0} max={255} color="primary" pin={true} ticks={true} onIonChange={e => getSliderValue(e.detail.value, 2) }></IonRange>
           </IonItem>
-
-
-
-
 
         </IonList>
 
@@ -272,25 +270,18 @@ const Page: React.FC = () => {
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(24,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(13,1,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 2 
             </IonButton>
           </IonCol>
 
           <IonCol sizeXs="2">
-            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(25,0,redvalue, greenvalue, bluevalue)) } >
+            <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(13,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 3 
             </IonButton>
           </IonCol>
 
-
-
         </IonRow>
-
-
-
-
-
 
       </IonContent>
     </IonPage>

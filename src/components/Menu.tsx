@@ -3,6 +3,7 @@ import {
   IonContent,
   IonIcon,
   IonItem,
+  IonItemDivider,
   IonLabel,
   IonList,
   IonListHeader,
@@ -74,8 +75,10 @@ const Menu: React.FC = () => {
               </IonMenuToggle>
             );
           })}
+        </IonList>
+        
+        <IonList>
           <IonItem id="myItem" slot="start" button={true} onClick={()=>toggleTheme()}> {dark_indicator()}</IonItem>
-
         </IonList>
       </IonContent>
     </IonMenu>

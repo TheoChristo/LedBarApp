@@ -3,7 +3,7 @@ import { IonRange} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline, power, chevronForwardCircle, bulb, partlySunnyOutline, bulbOutline, filterOutline, atCircleOutline, glassesOutline, analyticsOutline, browsersOutline, browsersSharp} from 'ionicons/icons';
+import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline, power, chevronForwardCircle, bulb, partlySunnyOutline, bulbOutline, filterOutline, atCircleOutline, glassesOutline, analyticsOutline, browsersOutline, browsersSharp, helpOutline} from 'ionicons/icons';
 import ReactDOM from 'react-dom';
 import React, { useState } from 'react';
 
@@ -13,10 +13,14 @@ import { RangeValue } from '@ionic/core';
 
 var sock : socketProvider;
 let connected = false;
+let lightsOn = false;
+let strobeOn = false;
+let randomOn = false;
 
 const Page: React.FC = () => {
   useIonViewDidEnter(() => {
     console.log("Did Enter")
+    console.log("Connected: "+connected)
     if (!connected)
       connectSocket()
   });
@@ -55,13 +59,39 @@ const Page: React.FC = () => {
       { text: 'Ok', handler: (d) => console.log('ok pressed') },
     ],
     // onDidDismiss: (e) => console.log('did dismiss'),
-  })}
+  })
+
+  connected = true;
+  ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
+}
 
   var connection_indicator = () => { 
     if (connected) return <IonIcon color="success" size="large" slot="end" icon={cloudDone} onClick={() => diconnect_socket()}/>
     else return <IonIcon color="danger" size="large" slot="end" icon={cloudOffline} onClick={() => connectSocket()}/>
   }
 
+  var lightsOnButton = (target:boolean) => { 
+    return (
+        <IonButton  shape="round" expand="full" fill="outline" color = {target? "warning":"medium"} size="large" onClick={() => lightsToggle(!lightsOn) } >
+          <IonIcon slot="start" icon={bulb}/> 
+        </IonButton>
+    );
+  }
+
+  var strobeOnButton = (target:boolean) => { 
+    return (
+        <IonButton  shape="round" expand="full" fill="outline" color = {target? "primary":"medium"} size="large" onClick={() => strobeToggle(!strobeOn) } >
+          <IonIcon slot="start" icon={filterOutline} /> 
+        </IonButton>
+    );
+  }
+  var randomOnButton = (target:boolean) => { 
+    return (
+        <IonButton  shape="round" expand="full" fill="outline" color = {target? "danger":"medium"} size="large" onClick={() => randomToggle(!randomOn) } >
+          <IonIcon slot="start" icon={helpOutline} /> 
+        </IonButton>
+    );
+  }
   function connectSocket()
   {
     try{
@@ -73,8 +103,13 @@ const Page: React.FC = () => {
         connected = true;
         ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
       };
+      sock.mySocket.onclose = function (event) {
+        present('Server disconnected.', 2000)
+        connected = false;
+        ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
+      };
       sock.mySocket.onerror = function(event) {
-        presentNoConnectionAlert("Socket Error")
+        presentNoConnectionAlert("Server connection error")
         connected = false; 
         ReactDOM.render(connection_indicator(), document.getElementById('myConnectionIndicator'));
       };
@@ -117,8 +152,11 @@ const Page: React.FC = () => {
   function sendSocketMessage(msg:string){
     if (connected)
     {
+      console.log("Trying to send socket message")
         sock.mySocket.send(msg);
     }
+    else
+      presentNoConnectionAlert("No connection available!")
   }
 
   function formatMessage(Op:number, Arg1:number, Arg2:number, Arg3:number, Arg4:number)
@@ -168,10 +206,21 @@ const Page: React.FC = () => {
   function lightsToggle(target:boolean) {
     console.log("LightToggle: "+target)
     sendSocketMessage (formatMessage(target ? 2 : 3,1,redvalue, greenvalue, bluevalue))
+    lightsOn=target
+    ReactDOM.render(lightsOnButton(target), document.getElementById('lightsOnButton'));
   }
   function strobeToggle(target:boolean) {
     console.log("StrobeToggle: "+target)
     sendSocketMessage(formatMessage(99,target ? 1 : 0,redvalue, greenvalue, bluevalue))
+    strobeOn=target
+    ReactDOM.render(strobeOnButton(target), document.getElementById('strobeOnButton'));
+  }
+  function randomToggle(target:boolean) {
+    console.log("randomToggle: "+target)
+    sendSocketMessage(formatMessage(13,target ? 1 : 0,redvalue, greenvalue, bluevalue))
+    randomOn=target
+    ReactDOM.render(randomOnButton(target), document.getElementById('randomOnButton'));
+    
   }
 
 
@@ -194,16 +243,22 @@ const Page: React.FC = () => {
 
       <IonContent>
 
+      <IonRow class="ion-align-items-center" >
+
+        <IonCol sizeXs="4"><div id="lightsOnButton">{lightsOnButton(lightsOn)}</div></IonCol>
+        <IonCol sizeXs="4"><div id="strobeOnButton">{strobeOnButton(strobeOn)}</div></IonCol>
+        <IonCol sizeXs="4"><div id="randomOnButton">{randomOnButton(randomOn)}</div></IonCol>
+
+      </IonRow>
+
+
+
+
         <IonRow>
         <IonItemDivider></IonItemDivider>
         </IonRow>
 
         <IonList> 
-          
-          <IonItem>
-            <IonTitle>Light</IonTitle>
-            <IonToggle color="success"  slot="end" onIonChange={(e)=>lightsToggle(e.detail.checked)}/> 
-          </IonItem>
           
           <IonItem>
             <IonIcon slot="start" icon={bulbOutline} color="medium" size="large" /> 
@@ -212,28 +267,21 @@ const Page: React.FC = () => {
           </IonItem>
 
           <IonItem>
-            <IonIcon slot="start" icon={partlySunnyOutline} color="medium" size="large" /> 
-            <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
-            </IonRange>
-          </IonItem>
-
-          <IonItemDivider></IonItemDivider>
-
-          <IonItem>
-            <IonTitle>Strobe</IonTitle>
-            <IonToggle color="tertiary" slot="end" onIonChange={(e)=>strobeToggle(e.detail.checked)}/> 
-          </IonItem>
-
-          <IonItem>
             <IonIcon slot="start" icon={filterOutline} color="medium" size="large" /> 
             <IonRange min={80} max={255} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 4) }>
             </IonRange>
           </IonItem>
 
+          <IonItem>
+            <IonIcon slot="start" icon={partlySunnyOutline} color="medium" size="large" /> 
+            <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
+            </IonRange>
+          </IonItem>
+          </IonList>
+
           <IonItemDivider></IonItemDivider>
 
-          <IonItem><IonTitle>Color</IonTitle></IonItem>
-          
+          <IonList>
           <IonItem>
             <IonIcon slot="start" icon={chevronForwardCircle} color="danger" size="large" /> 
             <IonRange min={0} max={255} color="danger" pin={true} onIonChange={e => getSliderValue(e.detail.value, 0) }></IonRange>
@@ -255,24 +303,24 @@ const Page: React.FC = () => {
 
         <IonRow class="ion-align-items-center">
 
-          <IonCol sizeXs="2" offset="1">
+          <IonCol sizeXs="4" >
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(21,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={glassesOutline} />Mirror 
             </IonButton>
           </IonCol>
 
-          <IonCol sizeXs="2">
+          <IonCol sizeXs="4">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(22,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={analyticsOutline} />Series 
             </IonButton>
           </IonCol>
 
-          <IonCol sizeXs="2">
+          <IonCol sizeXs="4">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(23,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersOutline} /> 1 
             </IonButton>
           </IonCol>
-
+{/* 
           <IonCol sizeXs="2">
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(13,1,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 2 
@@ -283,7 +331,7 @@ const Page: React.FC = () => {
             <IonButton color="medium" shape="round" fill="outline" expand="full" onClick={() => sendSocketMessage(formatMessage(13,0,redvalue, greenvalue, bluevalue)) } >
               <IonIcon slot="start" icon={browsersSharp} /> 3 
             </IonButton>
-          </IonCol>
+          </IonCol> */}
 
         </IonRow>
 

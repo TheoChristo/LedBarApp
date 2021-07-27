@@ -5,15 +5,20 @@ export class socketProvider
 
     constructor(){
         console.log("Creating Socket...")
-        // this.mySocket = new WebSocket("ws://192.168.2.10:8765");//PI
-        this.mySocket = new WebSocket("ws://192.168.2.7:8765");//MAC
+        this.mySocket = new WebSocket("ws://192.168.2.10:8765");//PI
+        // this.mySocket = new WebSocket("ws://192.168.2.7:8765");//MAC
+
+        // if (this.mySocket.OPEN)
 
         this.mySocket.onopen = function (event) {
             console.log("Socket connection established.")
         };
 
+
         this.mySocket.onerror = function(event) {
-            console.log("Connection Error");
+            console.log("=====Connection Error=====");
+
+
         };
 
         this.mySocket.onmessage = function(event) {

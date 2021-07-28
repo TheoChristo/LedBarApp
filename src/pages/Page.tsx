@@ -3,7 +3,7 @@ import { IonRange} from '@ionic/react';
 import { useParams } from 'react-router';
 import { IonButton, useIonToast } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline, power, chevronForwardCircle, bulb, partlySunnyOutline, bulbOutline, filterOutline, atCircleOutline, glassesOutline, analyticsOutline, browsersOutline, browsersSharp, helpOutline} from 'ionicons/icons';
+import { wifiOutline, send, cloudDone, cloudOffline, cloudDownloadOutline, paperPlane, pauseCircle, playCircle, ellipse, cloudUploadOutline, power, chevronForwardCircle, bulb, partlySunnyOutline, bulbOutline, filterOutline, atCircleOutline, glassesOutline, analyticsOutline, browsersOutline, browsersSharp, helpOutline, footstepsOutline} from 'ionicons/icons';
 import ReactDOM from 'react-dom';
 import React, { useState } from 'react';
 
@@ -39,6 +39,7 @@ const Page: React.FC = () => {
   const [fadevalue, setfadeValue] = useState(0);
   const [strobevalue, setstrobeValue] = useState(0);
   const [brightnessvalue, setbrightnessValue] = useState(0);
+  const [randomAmountvalue, setrandomAmountValue] = useState(0);
  
   interface espMessage {
     Op:number;
@@ -73,7 +74,7 @@ const Page: React.FC = () => {
   var lightsOnButton = (target:boolean) => { 
     return (
         <IonButton  shape="round" expand="full" fill="outline" color = {target? "warning":"medium"} size="large" onClick={() => lightsToggle(!lightsOn) } >
-          <IonIcon slot="start" icon={bulb}/> 
+          <IonIcon  icon={bulb}/> 
         </IonButton>
     );
   }
@@ -81,14 +82,14 @@ const Page: React.FC = () => {
   var strobeOnButton = (target:boolean) => { 
     return (
         <IonButton  shape="round" expand="full" fill="outline" color = {target? "primary":"medium"} size="large" onClick={() => strobeToggle(!strobeOn) } >
-          <IonIcon slot="start" icon={filterOutline} /> 
+          <IonIcon  icon={filterOutline} /> 
         </IonButton>
     );
   }
   var randomOnButton = (target:boolean) => { 
     return (
         <IonButton  shape="round" expand="full" fill="outline" color = {target? "danger":"medium"} size="large" onClick={() => randomToggle(!randomOn) } >
-          <IonIcon slot="start" icon={helpOutline} /> 
+          <IonIcon  icon={helpOutline} /> 
         </IonButton>
     );
   }
@@ -200,6 +201,12 @@ const Page: React.FC = () => {
       sendSocketMessage(formatMessage(12,brightnessvalue,redvalue, greenvalue, bluevalue))
       console.log("Brightness : "+brightnessvalue.toString())
     }
+    else if (sl == 6) 
+    {
+      setrandomAmountValue(val as number) 
+      sendSocketMessage(formatMessage(13,randomOn ? 1 : 0 ,randomAmountvalue, 0, 0))
+      console.log("Random Amount : "+randomAmountvalue.toString())
+    }
 
   }
 
@@ -217,7 +224,7 @@ const Page: React.FC = () => {
   }
   function randomToggle(target:boolean) {
     console.log("randomToggle: "+target)
-    sendSocketMessage(formatMessage(13,target ? 1 : 0,redvalue, greenvalue, bluevalue))
+    sendSocketMessage(formatMessage(13,target ? 1 : 0 ,randomAmountvalue, 0, 0))
     randomOn=target
     ReactDOM.render(randomOnButton(target), document.getElementById('randomOnButton'));
     
@@ -277,7 +284,13 @@ const Page: React.FC = () => {
             <IonRange min={1} max={120} color="medium" pin={true} onIonChange={e => getSliderValue(e.detail.value, 3) }>
             </IonRange>
           </IonItem>
-          </IonList>
+
+          <IonItem>
+            <IonIcon slot="start" icon={footstepsOutline}  color="medium" size="large" /> 
+            <IonRange min={1} max={10} step={1} color="medium" pin={true} snaps={true} ticks={true} onIonChange={e => getSliderValue(e.detail.value, 6) }>
+            </IonRange>
+          </IonItem>
+        </IonList>
 
           <IonItemDivider></IonItemDivider>
 
